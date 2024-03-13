@@ -1,0 +1,45 @@
+version: '3.4'
+
+services:
+  skeleton.api:
+    image: ${DOCKER_REGISTRY-}skeletonapi
+    build:
+      context: .
+      dockerfile: API/Dockerfile
+
+  skeleton.seq:
+    image: datalust/seq:latest
+    container_name: skeleton-seq
+    environment:
+       - ACCEPT_EULA=Y
+    ports:
+       - 5341:5341
+       - 8081:80
+  skeleton.postgres:
+    image: postgres:latest
+    container_name: skeleton-database
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: skeleton
+    ports:
+      - "5432:5432"
+      - "5433:5432"
+    volumes:
+    - ./.containers/skeleton-database:/var/lib/skeleton/postgresql/data
+
+  skeleton.pgadmin:
+    image: dpage/pgadmin4
+    container_name: skeleton-pgadmin
+    ports:
+      - "5050:5050"
+      - "5051:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - ./pgadmin:/var/lib/pgadmin
+    restart: unless-stopped
+  
+  
